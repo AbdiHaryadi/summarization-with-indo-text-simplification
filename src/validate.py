@@ -55,10 +55,9 @@ def main():
         e = idx + batch if idx + batch < len(corpus) else len(corpus)
 
         # Preprocess
-        print(time.time(), 'Preprocessing...')
+        print('Preprocessing...')
         current_corpus = [preprocess(x) for x in corpus[s:e]]
         if simplify_corpus is not None:
-            print(time.time(), 'Simplify ...')
             current_corpus = simplify_corpus(current_corpus)
 
         current_summary = summary[s:e]
@@ -76,7 +75,7 @@ def main():
             nlp = initialize_nlp()
         corpus_pos_tag = [pos_tag(nlp, sent, i+s) for i, sent in tqdm(enumerate(current_corpus))]
         # SRL
-        print(time.time(), 'Predicting SRL...')
+        print('Predicting SRL...')
         if (not loaded):
             srl_model, srl_data = load_srl_model(config)
         corpus_pas = [predict_srl(doc, srl_data, srl_model, config) for doc in tqdm(current_corpus)] if not saved_pas else all_pas[s:e]
@@ -87,7 +86,7 @@ def main():
         ## Filter incomplete PAS
         corpus_pas = [[filter_incomplete_pas(pas,pos_tag_sent) for pas, pos_tag_sent in zip(pas_doc, pos_tag_sent)] for pas_doc, pos_tag_sent in zip(corpus_pas, corpus_pos_tag)]
         ## Cleaning when there is no SRL 
-        print(time.time(), 'Cleaning empty SRL...')
+        print('Cleaning empty SRL...')
         empty_ids = []
         for i, doc in enumerate(corpus_pas):
             for j, srl in enumerate(doc):
@@ -166,13 +165,7 @@ def main():
             print(i)
         idx += batch
         
-    print(time.time(), 'Evaluating ....')
     append_pas(all_pas, types)
-
-    print("All ref:")
-    print(all_ref)
-    print("All sum:")
-    print(all_sum)
     result = evaluate(r, all_ref, all_sum, all_start)
     result = pd.DataFrame(data=result)
     res = prepare_df_result(result, types, algorithm)
