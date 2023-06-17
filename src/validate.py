@@ -11,6 +11,10 @@ from utils.main_utils import create_graph, evaluate, initialize_nlp, initialize_
 from utils.simplification_utils import generate_simplify_corpus_function
 
 def main():
+    start_time = time.time()
+    with open("simplification_log.txt", mode="a") as f:
+        print("Time:", start_time, file=f)
+
     types = sys.argv[2]
     config = return_config(sys.argv)
     corpus, summary, corpus_title = read_data(types, config)
@@ -42,27 +46,37 @@ def main():
     if config["use_simplification"]:
         simplify_corpus = generate_simplify_corpus_function()
 
+    with open("simplification_log.txt", mode="a") as f:
+        print("Use simplification:", simplify_corpus is not None, file=f)
+
     while (idx < len(corpus)):
-        print('Current = '+ str(idx))
+        print(time.time(), f'Current = {idx} (max: {len(corpus) - 1})')
         s = idx
         e = idx + batch if idx + batch < len(corpus) else len(corpus)
 
         # Preprocess
-        print('Preprocessing...')
+        print(time.time(), 'Preprocessing...')
         current_corpus = [preprocess(x) for x in corpus[s:e]]
         if simplify_corpus is not None:
+            print(time.time(), 'Simplify ...')
             current_corpus = simplify_corpus(current_corpus)
 
         current_summary = summary[s:e]
         current_title = [preprocess_title(x) for x in corpus_title[s:e]]
 
-        print(current_corpus)
+        with open("simplification_log.txt", mode="a") as f:
+            for document_index, document in enumerate(current_corpus):
+                print("Document index:", idx + document_index, file=f)
+                print("Document content:", file=f)
+                for word_list in document:
+                    print("\t" + " ".join(word_list), file=f)
+        
         # Pos Tag
         if (not loaded):
             nlp = initialize_nlp()
         corpus_pos_tag = [pos_tag(nlp, sent, i+s) for i, sent in tqdm(enumerate(current_corpus))]
         # SRL
-        print('Predicting SRL...')
+        print(time.time(), 'Predicting SRL...')
         if (not loaded):
             srl_model, srl_data = load_srl_model(config)
         corpus_pas = [predict_srl(doc, srl_data, srl_model, config) for doc in tqdm(current_corpus)] if not saved_pas else all_pas[s:e]
@@ -73,7 +87,7 @@ def main():
         ## Filter incomplete PAS
         corpus_pas = [[filter_incomplete_pas(pas,pos_tag_sent) for pas, pos_tag_sent in zip(pas_doc, pos_tag_sent)] for pas_doc, pos_tag_sent in zip(corpus_pas, corpus_pos_tag)]
         ## Cleaning when there is no SRL 
-        print('Cleaning empty SRL...')
+        print(time.time(), 'Cleaning empty SRL...')
         empty_ids = []
         for i, doc in enumerate(corpus_pas):
             for j, srl in enumerate(doc):
@@ -123,8 +137,8 @@ def main():
             graph_algorithm.run_algorithm()
             num_iter = graph_algorithm.get_num_iter()
             # maximal marginal relevance
-            summary = maximal_marginal_relevance(15, 2, ext_pas_list[i], ext_pas_flatten[i], graph_list[i], num_iter, sim_table[i])
-            summary_paragraph = natural_language_generation(summary, ext_pas_list[i], ext_pas_flatten[i], corpus_pos_tag[i], isOneOnly)
+            mmr_summary = maximal_marginal_relevance(15, 2, ext_pas_list[i], ext_pas_flatten[i], graph_list[i], num_iter, sim_table[i])
+            summary_paragraph = natural_language_generation(mmr_summary, ext_pas_list[i], ext_pas_flatten[i], corpus_pos_tag[i], isOneOnly)
             hyps = transform_summary(summary_paragraph)
             total_sum.append(hyps)
 
@@ -151,15 +165,27 @@ def main():
         for i in no_found:
             print(i)
         idx += batch
-        break
         
-    append_pas(all_pas, types)  
+    print(time.time(), 'Evaluating ....')
+    append_pas(all_pas, types)
+
+    print("All ref:")
+    print(all_ref)
+    print("All sum:")
+    print(all_sum)
     result = evaluate(r, all_ref, all_sum, all_start)
     result = pd.DataFrame(data=result)
     res = prepare_df_result(result, types, algorithm)
     res = res.select_dtypes(include=np.number)
+    
+    print("use_simplification:", simplify_corpus is not None)
+    print("Mean:")
     print(res.mean())
+
+    print("Min:")
     print(res.min())
+
+    print("Max:")
     print(res.max())
     
 if __name__ == "__main__":
