@@ -9,6 +9,7 @@ from models import GraphAlgorithm
 from utils.features_utils import  load_sim_emb, generate_sim_table, generate_features, prepare_df, prepare_features
 from utils.pas_utils import filter_pas, convert_to_PAS_models, convert_to_extracted_PAS, load_srl_model, predict_srl, filter_incomplete_pas
 from utils.main_utils import evaluate, accept_input, create_graph, initialize_nlp, initialize_rouge, load_reg_model, maximal_marginal_relevance, natural_language_generation, preprocess, prepare_df_result, pos_tag, read_data, return_config, transform_summary, semantic_graph_modification
+from utils.simplification_utils import generate_simplify_corpus_function
 
 
 tf.random.set_seed(42)
@@ -33,11 +34,22 @@ def main():
 
     loaded = False
     idx = 0
+
+    simplify_corpus = None
+    if config["use_simplification"]:
+        simplify_corpus = generate_simplify_corpus_function()
+
     while (True):
-        corpus, corpus_title, ref_sum = accept_input()
+        try:
+            corpus, corpus_title, ref_sum = accept_input()
+        except KeyboardInterrupt:
+            break
 
         # Preprocess
         current_corpus = [preprocess(x) for x in corpus]
+        if simplify_corpus is not None:
+            current_corpus = simplify_corpus(current_corpus)
+            
         current_title = corpus_title
 
         # Pos Tag            
@@ -119,9 +131,6 @@ def main():
             print('---------------')
             res = result.select_dtypes(include=np.number)
             print(res)
-
-
-
 
 if __name__ == "__main__":
     main()

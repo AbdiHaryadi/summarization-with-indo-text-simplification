@@ -8,6 +8,7 @@ from models import GraphAlgorithm
 from utils.features_utils import load_sim_emb, generate_sim_table, generate_features, prepare_df, prepare_features
 from utils.pas_utils import append_pas, filter_pas, convert_to_PAS_models, convert_to_extracted_PAS, load_srl_model, predict_srl, filter_incomplete_pas
 from utils.main_utils import create_graph, evaluate, initialize_nlp, initialize_rouge, load_reg_model, maximal_marginal_relevance, natural_language_generation, preprocess, preprocess_title, prepare_df_result, pos_tag, read_data, return_config, transform_summary, semantic_graph_modification
+from utils.simplification_utils import generate_simplify_corpus_function
 
 def main():
     types = sys.argv[2]
@@ -36,6 +37,11 @@ def main():
         saved_pas = False
 
     all_start = idx
+
+    simplify_corpus = None
+    if config["use_simplification"]:
+        simplify_corpus = generate_simplify_corpus_function()
+
     while (idx < len(corpus)):
         print('Current = '+ str(idx))
         s = idx
@@ -44,6 +50,9 @@ def main():
         # Preprocess
         print('Preprocessing...')
         current_corpus = [preprocess(x) for x in corpus[s:e]]
+        if simplify_corpus is not None:
+            current_corpus = simplify_corpus(current_corpus)
+
         current_summary = summary[s:e]
         current_title = [preprocess_title(x) for x in corpus_title[s:e]]
 

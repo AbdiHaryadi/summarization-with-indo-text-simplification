@@ -25,7 +25,7 @@ As this summarization system is SRL-based, we will need a pretrained SRL model, 
 
 # Testing with pretrained linear regression models
 1. Download pretrained models
-The provided models can be downloaded from [here], please remember to put the pretrained regression models into `models` folder in root
+The provided models can be downloaded from [here](https://drive.google.com/drive/folders/1AF1VVCKjFOmr8SdFlWBNEj3Y45C2iXtL), please remember to put the pretrained regression models into `models` folder in root
 2. Modify the `configurations.json` to fit the configurations the pretrained models was trained with. (The default is in this repository)
 3. Run predict script
 ```
@@ -47,7 +47,9 @@ make validate config=$(config)
 or
 ```
 make test config=$(config)
-```
+```.
+
+The test data can be found at [https://drive.google.com/drive/folders/1AF1VVCKjFOmr8SdFlWBNEj3Y45C2iXtL](https://drive.google.com/drive/folders/1AF1VVCKjFOmr8SdFlWBNEj3Y45C2iXtL). Save it at `data/raw`.
 
 # References
 <a id="1">[1]</a> 

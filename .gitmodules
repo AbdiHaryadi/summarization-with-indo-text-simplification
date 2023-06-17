@@ -1,0 +1,6 @@
+[submodule "src/spansrl"]
+	path = src/spansrl
+	url = https://github.com/AbdiHaryadi/spansrl-with-indo-text-simplification.git
+[submodule "indo_ts"]
+	path = indo_ts
+	url = https://github.com/AbdiHaryadi/indo-text-simplification.git

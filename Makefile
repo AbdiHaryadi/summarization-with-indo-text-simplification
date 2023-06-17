@@ -5,14 +5,11 @@ out := result.txt
 train: src/train.py
 	python3 src/train.py $(config) > log/$(config)_train.txt
 
-validate: src/validate.py
-	python3 src/validate.py $(config) val > log/$(config)_val.txt
-
 test:src/validate.py
-	python3 src/validate.py $(config) test > log/$(config)_test.txt
+	python3 src/validate.py $(config) test
 
 predict:src/predict.py
-	python3 src/predict.py $(config) $(out) > log/predict.txt
+	python3 src/predict.py $(config)
 
 run-test:
 	python3 -m unittest discover src/test

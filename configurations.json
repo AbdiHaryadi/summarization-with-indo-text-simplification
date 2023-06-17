@@ -9,7 +9,7 @@
         "max_char": 52,
         "char_list": " 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,-_()[]{}!?:;#'\"/\\%$`&=*+@^~|",
         "features": "test.csv",
-        "word_emb_path":"src/spansrl/data/pretrained/word2vec_news.model",
+        "word_emb_path":"data/pretrained/word2vec_news.model",
         "fasttext_emb_path": "data/pretrained/kyubyong.ft.id.bin",
         "w2v_sim_path":"data/pretrained/word2vec-input_sent.txt-s300-c5-w5-e10-SG.model",
         "ft_sim_path": "data/pretrained/kyubyong.ft.id.bin",
@@ -20,6 +20,31 @@
         "one_pas_only": false,
         "algorithm": "avg",
         "data_path": "summary_corpus.csv",
-        "srl_model": "data/pretrained/w2v_2bihlstm300"
+        "srl_model": "data/pretrained/w2v_2bihlstm300",
+        "use_simplification": true
+    },
+    "unsimplified": {
+        "srl_labels": ["ARG0","ARG1","ARG2","AM-MOD","AM-ADV","REL","AM-TMP","AM-CAU","AM-LOC","AM-DIR", "AM-MNR","AM-DIS","AM-PRD","ARG3","ARG4","AM-LVB","AM-PRP","AM-COM","AM-GOL","AM-EXT","AM-REC","AM-NEG","AM-ADJ"],
+        "max_pred_span": 2,
+        "max_arg_span": 27,
+        "max_predicates": 77,
+        "max_arguments": 777,
+        "max_tokens": 49,
+        "max_char": 52,
+        "char_list": " 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,-_()[]{}!?:;#'\"/\\%$`&=*+@^~|",
+        "features": "test.csv",
+        "word_emb_path":"data/pretrained/word2vec_news.model",
+        "fasttext_emb_path": "data/pretrained/kyubyong.ft.id.bin",
+        "w2v_sim_path":"data/pretrained/word2vec-input_sent.txt-s300-c5-w5-e10-SG.model",
+        "ft_sim_path": "data/pretrained/kyubyong.ft.id.bin",
+        "batch_size": 1,
+        "use_fasttext": false,
+        "use_pruning": false,
+        "use_constraint": true,
+        "one_pas_only": false,
+        "algorithm": "avg",
+        "data_path": "summary_corpus.csv",
+        "srl_model": "data/pretrained/w2v_2bihlstm300",
+        "use_simplification": false
     }
 }

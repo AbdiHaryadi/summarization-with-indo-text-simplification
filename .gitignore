@@ -1,10 +1,6 @@
-# span-srl
-src/spansrl/*
 data/*
 log/*
-__autograph*.py
-# exception to the rule
-!span-srl/.gitkeep 
+__autograph*.py 
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -120,6 +116,4 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-span-srl/
-spansrl/
 models/
