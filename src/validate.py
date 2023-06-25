@@ -50,7 +50,7 @@ def main():
         print("Use simplification:", simplify_corpus is not None, file=f)
 
     while (idx < len(corpus)):
-        print(time.time(), f'Current = {idx} (max: {len(corpus) - 1})')
+        print(time.time(), f'Current = {idx}')
         s = idx
         e = idx + batch if idx + batch < len(corpus) else len(corpus)
 
@@ -149,21 +149,24 @@ def main():
         
         all_ref.extend(total_ref)
         all_sum.extend(total_sum)
-        if (idx % 500 == 0):
-            result = evaluate(r, all_ref, all_sum, all_start)
-            result = pd.DataFrame(data=result)
-            prepare_df_result(result, types, algorithm)
-            if (not saved_pas):
-                append_pas(all_pas, types)
-                all_pas = []
-            all_ref = []
-            all_sum = []
-            all_start = idx+batch
+        # if (idx % 500 == 0):
+        #     result = evaluate(r, all_ref, all_sum, all_start)
+        #     result = pd.DataFrame(data=result)
+        #     prepare_df_result(result, types, algorithm)
+        #     if (not saved_pas):
+        #         append_pas(all_pas, types)
+        #         all_pas = []
+        #     all_ref = []
+        #     all_sum = []
+        #     all_start = idx+batch
 
         print('Total no SRL = '+str(total_no_srl))
         for i in no_found:
             print(i)
         idx += batch
+
+        if idx == 500:
+            break
         
     append_pas(all_pas, types)
     result = evaluate(r, all_ref, all_sum, all_start)
