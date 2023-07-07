@@ -10,14 +10,18 @@ from utils.pas_utils import append_pas, filter_pas, convert_to_PAS_models, conve
 from utils.main_utils import create_graph, evaluate, initialize_nlp, initialize_rouge, load_reg_model, maximal_marginal_relevance, natural_language_generation, preprocess, preprocess_title, prepare_df_result, pos_tag, read_data, return_config, transform_summary, semantic_graph_modification
 from utils.simplification_utils import generate_simplify_corpus_function
 
+
+
 def main():
     start_time = time.time()
+    summarization_log_path = f"{start_time}_summarization_log.txt"
     with open("simplification_log.txt", mode="a") as f:
         print("Time:", start_time, file=f)
 
     types = sys.argv[2]
     config = return_config(sys.argv)
     corpus, summary, corpus_title = read_data(types, config)
+    print(f"{len(corpus)=}")
     
     batch = config['batch_size'] if 'batch_size' in config else len(corpus)
     isOneOnly = config['one_pas_only']
@@ -25,7 +29,9 @@ def main():
     # Load model
     w2v, ft = load_sim_emb(config)
   
-    idx = 0
+    idx = 4320
+    print(f"Start from {idx=}")
+
     total_no_srl = 0
     loaded = False
     all_ref = []
@@ -51,6 +57,9 @@ def main():
 
     while (idx < len(corpus)):
         print(time.time(), f'Current = {idx}')
+        with open(summarization_log_path, mode="a") as f:
+            print(time.time(), f'Current = {idx}', file=f)
+
         s = idx
         e = idx + batch if idx + batch < len(corpus) else len(corpus)
 
@@ -82,6 +91,8 @@ def main():
 
         if (not saved_pas):
             all_pas.extend(corpus_pas)
+            with open(summarization_log_path, mode="a") as f:
+                print(f"{corpus_pas=}", file=f)
 
         ## Filter incomplete PAS
         corpus_pas = [[filter_incomplete_pas(pas,pos_tag_sent) for pas, pos_tag_sent in zip(pas_doc, pos_tag_sent)] for pas_doc, pos_tag_sent in zip(corpus_pas, corpus_pos_tag)]
@@ -149,6 +160,10 @@ def main():
         
         all_ref.extend(total_ref)
         all_sum.extend(total_sum)
+
+        with open(summarization_log_path, mode="a") as f:
+            print(f"{total_ref=}", file=f)
+            print(f"{total_sum=}", file=f)
         # if (idx % 500 == 0):
         #     result = evaluate(r, all_ref, all_sum, all_start)
         #     result = pd.DataFrame(data=result)
@@ -164,9 +179,6 @@ def main():
         for i in no_found:
             print(i)
         idx += batch
-
-        if idx == 500:
-            break
         
     append_pas(all_pas, types)
     result = evaluate(r, all_ref, all_sum, all_start)

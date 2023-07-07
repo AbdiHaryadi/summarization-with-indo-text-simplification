@@ -5,7 +5,7 @@ from indo_ts.src.utils import word_list_to_sentence, sentence_to_word_list
 from indo_ts.src.indo_ts import TextSimplifier
 
 def generate_simplify_corpus_function():
-    simplifier = TextSimplifier(tokenize_no_ssplit=True, strategy=4)
+    simplifier = TextSimplifier(tokenize_no_ssplit=True, strategy=5)
     def simplify_corpus(corpus_list):
         new_corpus_list = []
         for single_corpus in corpus_list:

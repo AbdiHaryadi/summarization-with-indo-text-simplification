@@ -1,5 +1,5 @@
 anytree==2.8.0
-gensim==4.1.2
+gensim==4.3.1
 networkx==2.7
 nltk==3.7.0
 numpy==1.23.5
