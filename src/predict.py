@@ -21,34 +21,39 @@ os.environ["CUDA_VISIBLE_DEVICES"]="1,7"
 
 
 def main():
+    do_summarization_predict_process = initialize_summarization_process_procedure()
+
+    while (True):
+        try:
+            do_summarization_predict_process()
+        except KeyboardInterrupt:
+            print("Keyboard interrupt detected. Stop.")
+            break
+
+def initialize_summarization_process_procedure():
     config = return_config(sys.argv)
-    
-    
-    batch = 1
     isOneOnly = config['one_pas_only']
+
     # Load model
     nlp = initialize_nlp()
     srl_model, srl_data = load_srl_model(config)
     w2v, ft = load_sim_emb(config)
     r_metrics = initialize_rouge()
 
-    loaded = False
-    idx = 0
-
     simplify_corpus = None
     if config["use_simplification"]:
         simplify_corpus = generate_simplify_corpus_function()
 
-    while (True):
-        try:
-            corpus, corpus_title, ref_sum = accept_input()
-        except KeyboardInterrupt:
-            break
+    def do_summarization_predict_process(use_simplification: bool = True):
+        corpus, corpus_title, ref_sum = accept_input()
 
         # Preprocess
         current_corpus = [preprocess(x) for x in corpus]
-        if simplify_corpus is not None:
+        if use_simplification and simplify_corpus is not None:
             current_corpus = simplify_corpus(current_corpus)
+            print("Simplified:")
+            for word_list in current_corpus[0]:
+                print(*word_list, sep=" ")
             
         current_title = corpus_title
 
@@ -75,7 +80,7 @@ def main():
             del corpus_pas[i][j]
             del corpus_pos_tag[i][j]
             
-         # Choose one pas
+        # Choose one pas
         if (isOneOnly):
             corpus_pas = [[filter_pas(pas, pos) for pas, pos in zip(pas_doc, pos_tag_doc)] for pas_doc, pos_tag_doc in zip(corpus_pas, corpus_pos_tag)]
 
@@ -91,9 +96,8 @@ def main():
         graph_list = [create_graph(corpus_pas, sim) for corpus_pas, sim in zip(ext_pas_flatten, sim_table)]
         generate_features(ext_pas_list, sim_table, current_title)
 
-        if (not loaded):
-            reg = load_reg_model(config['algorithm'])
-    
+        reg = load_reg_model(config['algorithm'])
+
         total_sum = []
         for i, doc in enumerate(ext_pas_list):
             # Predicting
@@ -129,8 +133,11 @@ def main():
             print(total_ref[0])
             print('Hasil evaluasi')
             print('---------------')
+            result = pd.DataFrame(data=result)
             res = result.select_dtypes(include=np.number)
             print(res)
+
+    return do_summarization_predict_process
 
 if __name__ == "__main__":
     main()
